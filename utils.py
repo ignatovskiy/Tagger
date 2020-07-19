@@ -17,6 +17,17 @@ def read_instance_groups() -> dict:
     return groups_json
 
 
+def read_users() -> dict:
+    with open("users.json", "r", encoding="UTF-8") as f:
+        users = json.load(f)
+    return users
+
+
+def write_users(users_dict):
+    with open("users.json", "w", encoding="UTF-8") as f:
+        json.dump(users_dict, f)
+
+
 def find_instance_groups(instance_labels, groups_json) -> dict:
     instance_groups = dict()
 
