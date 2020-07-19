@@ -79,6 +79,7 @@ def main(image_name="test1.jpg",
                    "sky": counter_dict[10]}
 
     print(labels_dict)
+    return labels_dict
 
 
 if __name__ == '__main__':

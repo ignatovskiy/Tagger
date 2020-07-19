@@ -1,0 +1,17 @@
+{
+  "people": ["person"],
+  "public transport": ["bicycle", "car", "bus"],
+  "street": ["trafficlight", "firehydrant", "stopsign", "parkingmeter", "bench"],
+  "pets": ["cat", "dog"],
+  "farm animals": ["horse", "sheep", "cow"],
+  "wild animals": ["bird", "elephant", "bear", "zebra", "giraffe"],
+  "food": ["wineglass", "banana", "apple", "sandwich", "orange", "broccoli", "carrot", "hotdog", "pizza", "donut", "cake"],
+  "interior": ["chair", "couch", "bed", "diningtable"],
+  "kitchen tools": ["cup", "fork", "knife", "spoon", "bowl", "bottle"],
+  "devices": ["tv", "laptop", "mouse", "remote", "keyboard", "cellphone"],
+  "appliances": ["microwaves", "toaster", "refrigerator"],
+  "sport equipment": ["frisbee", "sportsball", "kite", "baseballbat", "baseballglove", "skateboard", "surfboard", "tennisracket"],
+  "winter sports": ["skis", "snowboard"],
+  "street items": ["umbrella", "hangbag"],
+  "transport": ["airplane", "train", "truck", "boat"]
+}

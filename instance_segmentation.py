@@ -80,6 +80,7 @@ def main(input_pic="test1.jpg",
             labels[label] += 1
 
     print(labels)
+    return labels
 
 
 if __name__ == '__main__':
