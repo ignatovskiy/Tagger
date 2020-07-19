@@ -74,7 +74,7 @@ def main(image_name="test1.jpg",
         counter_dict[number] = number_area / all_size * 100
 
     labels_dict = {"vegetation": counter_dict[8] + counter_dict[9],
-                   "water": counter_dict[0],
+                   "water/road": counter_dict[0],
                    "buildings": counter_dict[2],
                    "sky": counter_dict[10]}
 
