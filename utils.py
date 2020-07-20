@@ -48,8 +48,7 @@ def find_instance_groups(instance_labels, groups_json) -> dict:
     return instance_groups
 
 
-def main() -> (dict, dict):
-    # Add image name to get_image_labels() like image_name=
-    instance_labels, semantic_labels = get_image_labels()
+def main(image_name="test1.jpg") -> (dict, dict):
+    instance_labels, semantic_labels = get_image_labels(image_name)
     instance_groups = find_instance_groups(instance_labels, read_instance_groups())
     return instance_groups, semantic_labels
