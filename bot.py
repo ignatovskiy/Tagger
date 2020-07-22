@@ -4,6 +4,7 @@ import telegram
 
 import config
 import utils
+import vk_bot
 
 
 def text_handling(update: telegram.Update, context: CallbackContext):
@@ -27,13 +28,21 @@ def community_handling(message, user_id):
     users[user_id] = message
     utils.write_users(users)
 
-    # parsing from vk part
+    message = message.replace("https://vk.com/", "")
 
-    tags = ", ".join(utils.read_instance_groups().keys())
-    text = "Сообщество {} зарегистрировано, теперь выберите интересующий вас тег " \
-           "или отправьте ссылку на другое сообщество. \n\nТеги:\n\n".format(message)
+    group_id = vk_bot.get_group_id(message)
 
-    bot.send_message(chat_id=user_id, text=text + tags)
+    if group_id is not False:
+        pics = vk_bot.get_wall_pics_by_id(group_id, 10)
+
+        for pic in pics:
+            vk_bot.save_pic(pic)
+
+        tags = ", ".join(utils.read_instance_groups().keys())
+        text = "Сообщество {} зарегистрировано, теперь выберите интересующий вас тег " \
+               "или отправьте ссылку на другое сообщество. \n\nТеги:\n\n".format(message)
+
+        bot.send_message(chat_id=user_id, text=text + tags)
 
 
 def tag_handling(message, user_id):
