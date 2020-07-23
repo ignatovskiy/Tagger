@@ -47,8 +47,6 @@ def community_handling(message, user_id):
             vk_bot.save_pic(pic[0])
             tags = get_tags(photo_name)
 
-            print("yes\n")
-
             all_tags.extend(tags)
             pics_dict[pic[1]] = tags
 
