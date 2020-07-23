@@ -1,10 +1,12 @@
-from telegram.ext.dispatcher import run_async
+import json
+
 from telegram.ext import Updater, CallbackContext, CommandHandler, MessageHandler, Filters
 import telegram
 
 import config
 import utils
 import vk_bot
+from tags import tagging
 
 
 def text_handling(update: telegram.Update, context: CallbackContext):
@@ -25,32 +27,74 @@ def community_handling(message, user_id):
     bot = updater.bot
 
     users = utils.read_users()
-    users[user_id] = message
-    utils.write_users(users)
 
     message = message.replace("https://vk.com/", "")
+    photo_name = 'test1.jpg'
 
     group_id = vk_bot.get_group_id(message)
 
+    users[user_id] = str(group_id)
+    utils.write_users(users)
+
     if group_id is not False:
+        bot.send_message(chat_id=user_id, text="Идет обработка постов сообщества. Пожалуйста, подождите (~50 секунд)")
         pics = vk_bot.get_wall_pics_by_id(group_id, 10)
 
-        for pic in pics:
-            vk_bot.save_pic(pic)
+        all_tags = []
+        pics_dict = dict()
 
-        tags = ", ".join(utils.read_instance_groups().keys())
+        for pic in pics:
+            vk_bot.save_pic(pic[0])
+            tags = get_tags(photo_name)
+
+            print("yes\n")
+
+            all_tags.extend(tags)
+            pics_dict[pic[1]] = tags
+
+        with open(str(group_id), "w", encoding="UTF-8") as f:
+            json.dump(pics_dict, f)
+
+        tags = ", ".join(set(all_tags))
         text = "Сообщество {} зарегистрировано, теперь выберите интересующий вас тег " \
                "или отправьте ссылку на другое сообщество. \n\nТеги:\n\n".format(message)
 
         bot.send_message(chat_id=user_id, text=text + tags)
 
+    else:
+        bot.send_message(chat_id=user_id, text="Ошибка, данного сообщества не существует или оно закрытое.")
+
 
 def tag_handling(message, user_id):
     message = message[1:]
     bot = updater.bot
-    # parsing from vk part
 
-    bot.send_message(chat_id=user_id, text="Посты по заданному тегу " + message)
+    with open("users.json", "r", encoding="UTF-8") as f:
+        users_dict = json.load(f)
+
+    group_id = users_dict.get(str(user_id))
+
+    if group_id is not None:
+
+        with open(str(group_id), "r", encoding="UTF-8") as f:
+            posts_dict = json.load(f)
+
+        posts = []
+        for post in posts_dict:
+            if message in posts_dict[post]:
+                posts.append(post)
+
+        if len(posts) > 0:
+            bot.send_message(chat_id=user_id, text="Посты по заданному тегу " + message)
+
+            for post in posts:
+                bot.send_photo(chat_id=user_id, photo=post)
+
+        else:
+            bot.send_message(chat_id=user_id, text="За последнее время в этом сообществе не было постов с этим тегом.")
+
+    else:
+        bot.send_message(chat_id=user_id, text="Ошибка, отправьте правильную ссылку на любой открытый паблик в ВК с фото.")
 
 
 def information_print(update: telegram.Update, context: CallbackContext):
@@ -67,21 +111,30 @@ def information_print(update: telegram.Update, context: CallbackContext):
     bot.send_message(chat_id=user_id, text=message_text, parse_mode="HTML")
 
 
+def get_tags(photo_name):
+    instance_labels, semantic_labels = utils.get_image_labels()
+    instance_groups_labels = utils.read_instance_groups()
+    instance_groups = utils.find_instance_groups(instance_labels, instance_groups_labels)
+
+    instance_groups.update(semantic_labels)
+
+    tags = tagging({photo_name: instance_groups})[photo_name]
+    return tags
+
+
 def tag_photo(update: telegram.Update, context: CallbackContext):
     bot = context.bot
     message = update.message
     user_id = message.chat.id
 
+    photo_name = 'test1.jpg'
+
     file = bot.get_file(message.photo[-1].file_id)
-    file.download('test1.jpg')
+    file.download(photo_name)
 
-    instance_labels, semantic_labels = utils.get_image_labels()
-    instance_groups_labels = utils.read_instance_groups()
-    instance_groups = utils.find_instance_groups(instance_labels, instance_groups_labels)
+    tags = get_tags(photo_name)
 
-    bot.send_message(chat_id=user_id, text="Instance groups: " + str(instance_groups) + "\n\n" +
-                                           "Instance labels: " + str(instance_labels) + "\n\n" +
-                                           "Segmentation labels: " + str(semantic_labels))
+    bot.send_message(chat_id=user_id, text="Tags: " + ", ".join(tags), reply_to_message_id=message.message_id)
 
 
 if __name__ == '__main__':

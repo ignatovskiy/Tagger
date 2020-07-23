@@ -27,7 +27,8 @@ def get_wall_pics_by_id(group_id: int, count_posts: int):
     pics_list = []
     for post in walls_dict["response"]["items"]:
         try:
-            temp_pic = post["attachments"][0]["photo"]["sizes"][-1]["url"]
+            temp_pic = (post["attachments"][0]["photo"]["sizes"][0]["url"],
+                        post["attachments"][0]["photo"]["sizes"][-1]["url"])
             pics_list.append(temp_pic)
         except (IndexError, KeyError):
             pass
@@ -36,7 +37,7 @@ def get_wall_pics_by_id(group_id: int, count_posts: int):
 
 
 def save_pic(pic_url: str):
-    with open(hashlib.sha224(pic_url.encode()).hexdigest() + ".jpg", 'wb') as handle:
+    with open("test1.jpg", 'wb') as handle:
         response = requests.get(pic_url, stream=True)
 
         if not response.ok:
